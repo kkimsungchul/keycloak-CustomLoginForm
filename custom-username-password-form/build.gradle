@@ -27,6 +27,6 @@ dependencies {
 }
 
 shadowJar {
-    archiveBaseName.set("custom-usernapasswordform")
+    archiveBaseName.set("custom-username-password-form")
     archiveClassifier.set('')
 }
