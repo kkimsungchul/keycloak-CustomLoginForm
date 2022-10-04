@@ -33,15 +33,7 @@ public class CustomUsernamePasswordForm extends UsernamePasswordForm {
     @Override
     public void action(AuthenticationFlowContext context) {
         MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
-
-        System.out.println("###### custom formData.getFirst password : "+formData.getFirst("password"));
-
-
         transformPassword(context.getSession(),context.getRealm(),formData);
-
-        System.out.println("###### custom formData.getFirst password : "+formData.getFirst("password"));
-
-
         if (formData.containsKey("cancel")) {
             context.cancelLogin();
             return;
