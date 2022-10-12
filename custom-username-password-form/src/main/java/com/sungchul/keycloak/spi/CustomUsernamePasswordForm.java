@@ -33,12 +33,22 @@ public class CustomUsernamePasswordForm extends UsernamePasswordForm {
     @Override
     public void action(AuthenticationFlowContext context) {
         MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
-        transformPassword(context.getSession(),context.getRealm(),formData);
+        transformPassword(context.getSession(),context.getRealm(),formData,context);
+        //화면단에 데이터 전송
+        //꺼내서 사용할때는  <input type="hidden" id="bb" value ="${(testData!'')}"> 이렇게 사용하면 됨
+        context.form().setAttribute("testData","sample test data");
+
         if (formData.containsKey("cancel")) {
             context.cancelLogin();
+            //아래코드 작동안함
+            //context.form().setAttribute("testData","testData11");
+            System.out.println("로그인 11");
             return;
         }
-        if (!validateForm(context, formData)) {
+        if (!validateForm(context, formData)){
+            //아래코드 작동안함
+            context.form().setAttribute("testData","testData22");
+            System.out.println("로그인 22");
             return;
         }
         context.success();
@@ -105,7 +115,7 @@ public class CustomUsernamePasswordForm extends UsernamePasswordForm {
 
     }
 
-    private void transformPassword(KeycloakSession session, RealmModel realm, MultivaluedMap<String, String> formData) throws IllegalStateException {
+    private void transformPassword(KeycloakSession session, RealmModel realm, MultivaluedMap<String, String> formData,AuthenticationFlowContext context) throws IllegalStateException {
         // Get the default active RSA key
         KeyWrapper activeRsaKey = session.keys().getActiveKey(realm, KeyUse.SIG, Algorithm.RS256);
         // read Password from input data
@@ -113,18 +123,20 @@ public class CustomUsernamePasswordForm extends UsernamePasswordForm {
         JWEObject jweObject = parseJweObject(activeRsaKey, passwordJWE);
         Map<String, Object> jsonObject = jweObject.getPayload().toJSONObject();
         // Validate timestamp, make sure time is not far in the pass.
-        validateTimeout(jsonObject);
+        validateTimeout(jsonObject,context);
         // Set cleartext password in inputData
         formData.addFirst("password",(String) jsonObject.get("pwd"));
     }
 
-    private void validateTimeout(Map<String, Object> jsonObject) {
+    private void validateTimeout(Map<String, Object> jsonObject,AuthenticationFlowContext context) {
         ZonedDateTime dateTime = ZonedDateTime.parse((String) jsonObject.get("timestamp"));
         ZonedDateTime now = ZonedDateTime.now();
         if (ChronoUnit.MINUTES.between(dateTime, now) > 5) {
             logger.warn("Timestamp is to far in the past.");
-            throw new IllegalStateException("Timestamp is to far in the past.");
+            //throw new IllegalStateException("Timestamp is to far in the past.");
+            context.form().setAttribute("clientTimeError","clientTimeError");
         }
+        context.form().setAttribute("testData","zxcvz1111");
     }
 
     private JWEObject parseJweObject(KeyWrapper activeRsaKey, String passwordJWE) {
