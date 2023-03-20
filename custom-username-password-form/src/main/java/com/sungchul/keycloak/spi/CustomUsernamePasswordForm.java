@@ -41,15 +41,15 @@ public class CustomUsernamePasswordForm extends UsernamePasswordForm {
 
         //클라이언트와 서버의 시간차이가 5분이상일경우(클라이언트가 5분 더 느릴경우) 오류 처리
         if(!timeCheck){
-            context.failureChallenge(AuthenticationFlowError.INTERNAL_ERROR,
-                    context.form().setError("서버와 클라이언트의 시간차이가 5분이상일 경우 로그인이 제한됩니다.","Timestamp is to far in the past").createErrorPage(
-                            Response.Status.INTERNAL_SERVER_ERROR
-                    ));
+//            context.failureChallenge(AuthenticationFlowError.INTERNAL_ERROR,
+//                    context.form().setError("서버와 클라이언트의 시간차이가 5분이상일 경우 로그인이 제한됩니다.","Timestamp is to far in the past").createErrorPage(
+//                            Response.Status.INTERNAL_SERVER_ERROR
+//                    ));
 
 
 
-//            Response challengeResponse = challenge(context,"서버와 클라이언트의 시간차이가 5분이상일 경우 로그인이 제한됩니다.", "loginTimeout");
-//            context.challenge(challengeResponse);
+            Response challengeResponse = challenge(context,"서버와 클라이언트의 시간차이가 5분이상일 경우 로그인이 제한됩니다.", "loginTimeout");
+            context.challenge(challengeResponse);
 
             return;
         }
@@ -149,8 +149,8 @@ public class CustomUsernamePasswordForm extends UsernamePasswordForm {
         ZonedDateTime dateTime = ZonedDateTime.parse((String) jsonObject.get("timestamp"));
         ZonedDateTime now = ZonedDateTime.now();
 
-        //if(true){
-        if (ChronoUnit.MINUTES.between(dateTime, now) > 5) {
+        if(true){
+        //if (ChronoUnit.MINUTES.between(dateTime, now) > 5) {
             logger.warn("Timestamp is to far in the past.");
             //throw new IllegalStateException("Timestamp is to far in the past.");
             context.form().setAttribute("clientTimeError","clientTimeError");
